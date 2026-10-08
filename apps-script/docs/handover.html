@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Live, shareable version: https://claude.ai/artifact/BCSwPsdBcssBKHDw9ocm3C -->
+<title>Task Force Handover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single run-of-show sheet, like the event's Google Doc — numbered sections, label/value rows, tables where the content is tabular. */
+:root{
+  --paper:#FFFFFF; --ground:#EEF2FA; --ink:#1B2744; --muted:#5A6788; --line:#DCE3F2;
+  --navy:#03134F; --blue:#0452F0; --sun:#EAB308; --sunsoft:#FFF6D6; --code:#F1F4FB; --fill:#9A6B00;
+  --display:'Poppins', 'Segoe UI', system-ui, sans-serif;
+  --body:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0E1733; --ground:#070E24; --ink:#E3E9F7; --muted:#9AA8C8; --line:#22305A;
+  --navy:#DCE6FF; --blue:#6E9BFF; --sun:#EAB308; --sunsoft:#2E2710; --code:#16214A; --fill:#F2C94C; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#0E1733; --ground:#070E24; --ink:#E3E9F7; --muted:#9AA8C8; --line:#22305A;
+  --navy:#DCE6FF; --blue:#6E9BFF; --sun:#EAB308; --sunsoft:#2E2710; --code:#16214A; --fill:#F2C94C; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--ground); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.6; padding-inline:16px; padding-block:32px 64px}
+.sheet{max-width:860px; margin:0 auto; background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:48px clamp(20px,6vw,72px) 56px}
+a{color:var(--blue); text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--blue); outline-offset:2px; border-radius:3px}
+code,.mono{font-family:var(--mono); font-size:.88em; background:var(--code); padding:1px 5px; border-radius:4px; overflow-wrap:anywhere}
+
+.brand{font-family:var(--display); font-weight:700; font-size:19px; color:var(--navy); letter-spacing:-.2px}
+.brand span{color:var(--blue); font-weight:500}
+h1{font-family:var(--display); font-weight:800; font-size:clamp(24px,4.4vw,32px); line-height:1.15; color:var(--navy); margin:10px 0 6px; text-wrap:balance; letter-spacing:-.4px}
+.lede{color:var(--muted); margin:0}
+.lede em{display:block; margin-top:2px}
+
+section{margin-top:40px}
+h2{font-family:var(--display); font-weight:700; font-size:19px; color:var(--navy); margin:0 0 16px; padding-bottom:9px; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:baseline; text-wrap:balance}
+h2 .n{color:var(--blue); font-weight:800}
+h3{font-family:var(--display); font-weight:600; font-size:15px; color:var(--navy); margin:22px 0 8px}
+p{margin:0 0 12px; max-width:68ch}
+.note{font-style:italic; color:var(--muted); font-size:13.5px; margin-top:3px}
+
+.rows{display:grid; gap:16px}
+.row{min-width:0}
+.row .lab{font-weight:600; color:var(--navy)}
+.urlline{display:flex; gap:8px; align-items:center; flex-wrap:wrap; min-width:0}
+.urlline a{overflow-wrap:anywhere; min-width:0}
+.copy{font:500 12px var(--body); color:var(--muted); background:transparent; border:1px solid var(--line); border-radius:5px; padding:2px 8px; cursor:pointer}
+.copy:hover{color:var(--ink); border-color:var(--muted)}
+.big{font-family:var(--display); font-weight:700; font-size:20px; color:var(--navy); letter-spacing:1px}
+.fillin{display:inline-block; font-size:13px; font-weight:500; color:var(--fill); border:1px dashed currentColor; border-radius:5px; padding:1px 8px}
+
+.tablewrap{overflow-x:auto; margin:4px 0 8px}
+table{border-collapse:collapse; width:100%; font-size:14px}
+th,td{text-align:left; vertical-align:top; padding:8px 12px 8px 0; border-bottom:1px solid var(--line)}
+th{font-family:var(--display); font-weight:600; font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted)}
+td:first-child{white-space:nowrap}
+tr:last-child td{border-bottom:0}
+
+ol.steps,ul.list{margin:0 0 12px; padding-left:22px; max-width:70ch}
+ol.steps li,ul.list li{margin-bottom:7px}
+ol.steps li::marker{color:var(--blue); font-weight:700}
+
+.flow{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0 14px; font-size:13.5px}
+.flow span{background:var(--code); border-radius:5px; padding:3px 9px}
+.flow i{color:var(--muted); font-style:normal}
+.call{background:var(--sunsoft); border-left:3px solid var(--sun); padding:12px 16px; border-radius:0 6px 6px 0; margin:14px 0; font-size:14px}
+.call p{margin:0}
+.foot{margin-top:44px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+@media (max-width:520px){ td:first-child{white-space:normal} .sheet{padding-block:32px 40px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="brand">alx <span>Enterprise</span></div>
+  <h1>The Task Force — Live Links, Backend &amp; Handover</h1>
+  <p class="lede">AI change simulator, live scoreboard and end-of-day feedback form, running on Google Apps Script with a Google Sheet as the database.
+    <em>Everything someone needs to run it, rebuild it from scratch, or adapt it for another session.</em></p>
+
+  <!-- 1 -->
+  <section id="links">
+    <h2><span class="n">1</span>Live links</h2>
+    <div class="rows">
+      <div class="row">
+        <div class="lab">Game (guests scan / one device per table)</div>
+        <div class="urlline"><a href="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec?page=index" target="_blank" rel="noopener">…/exec?page=index</a><button class="copy" data-copy="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec?page=index">Copy</button></div>
+      </div>
+      <div class="row">
+        <div class="lab">Reveal code (unlocks “what happened” after Round 1)</div>
+        <div class="big">2026</div>
+        <div class="note">You keep this. Read it out only when every group shows “Playing…” on the scoreboard. Change it in the Config tab (<code>REVEAL_CODE</code>).</div>
+      </div>
+      <div class="row">
+        <div class="lab">Live scoreboard (room screen)</div>
+        <div class="urlline"><a href="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec?page=dashboard" target="_blank" rel="noopener">…/exec?page=dashboard</a><button class="copy" data-copy="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec?page=dashboard">Copy</button></div>
+        <div class="note">Refreshes every 15 seconds. <b>Start a new event</b> at the bottom (tap twice) clears the board for the next session.</div>
+      </div>
+      <div class="row">
+        <div class="lab">Feedback form (QR on the closing slide)</div>
+        <div class="urlline"><a href="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec?page=feedback" target="_blank" rel="noopener">…/exec?page=feedback</a><button class="copy" data-copy="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec?page=feedback">Copy</button></div>
+        <div class="note">Every question except the comment is required.</div>
+      </div>
+      <div class="row">
+        <div class="lab">Web app base URL</div>
+        <div class="urlline"><span class="mono">https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec</span><button class="copy" data-copy="https://script.google.com/macros/s/AKfycbxLqx7MnKkHrQ9-gjfnVtFPw6MckWOEW6Sd6wR4WkQAKfbnIsRxtXWSTZ6IZEkFvfuCdg/exec">Copy</button></div>
+        <div class="note">All three pages are this one URL plus <code>?page=…</code>. For staff signed in to alxafrica.com it redirects to <code>/a/macros/alxafrica.com/s/…/exec</code>; both forms work. Share the short form.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="backend">
+    <h2><span class="n">2</span>Backend</h2>
+    <div class="rows">
+      <div class="row">
+        <div class="lab">Database &amp; rulebook — Google Sheet</div>
+        <span class="fillin">Add the sheet's link</span>
+        <div class="note">Results, feedback and the game's rules all live here. Edits to Config and Options apply the next time a page is opened; no redeploy.</div>
+      </div>
+      <div class="row">
+        <div class="lab">Code — Apps Script project</div>
+        <div>Open the sheet → <b>Extensions → Apps Script</b>. The script is attached to the sheet, so it moves and copies with it.</div>
+      </div>
+      <div class="row">
+        <div class="lab">Owner / deploying account</div>
+        <span class="fillin">Add the owner's account</span>
+        <div class="note">The app runs as this account. If it is disabled or loses access to the sheet, every page stops working.</div>
+      </div>
+      <div class="row">
+        <div class="lab">Source code</div>
+        <div class="urlline"><a href="https://github.com/alx-nigeria/alx-taskforce/tree/main/apps-script" target="_blank" rel="noopener">github.com/alx-nigeria/alx-taskforce → apps-script/</a></div>
+        <div class="note">The repo's root files are the old Vercel + Google Forms version. The <code>apps-script/</code> folder is what's live now. Its README has the full setup guide.</div>
+      </div>
+    </div>
+
+    <h3>Sheet tabs</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Tab</th><th>Written by</th><th>What's in it</th></tr></thead>
+      <tbody>
+        <tr><td><b>Config</b></td><td>You</td><td>Settings, one per row: groups, coins, round 1 limit, reveal code, penalties, board cut %, refresh rate, event name, feedback choices, web app URL.</td></tr>
+        <tr><td><b>Options</b></td><td>You</td><td>One row per card in the game: name, cost, points, which setback it prevents, when it's offered in round 2. Hover a header for help.</td></tr>
+        <tr><td><b>Submissions</b></td><td>The game</td><td>One row per group per round: timestamp, group, round, picks, leak / board / adoption (covered or hit), coins spent, score. Feeds the scoreboard.</td></tr>
+        <tr><td><b>Feedback</b></td><td>Feedback page</td><td>One row per guest: timestamp, rating, recommend, liked most, follow-up, email, comment.</td></tr>
+        <tr><td><b>Archive</b></td><td>“Start a new event”</td><td>Past events' submissions. Nothing is ever deleted.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Sheet menu (Task Force)</h3>
+    <ul class="list">
+      <li><b>Show page links</b>: the three links, built from <code>WEB_APP_URL</code> in Config.</li>
+      <li><b>Start a new event</b>: same as the scoreboard button. Moves Submissions to Archive.</li>
+      <li><b>Set up / repair tabs</b>: creates any missing tab or Config row. Never overwrites existing data.</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section id="hosting">
+    <h2><span class="n">3</span>Hosting on Apps Script</h2>
+    <div class="tablewrap"><table>
+      <tbody>
+        <tr><td><b>Deployment type</b></td><td>Web app</td></tr>
+        <tr><td><b>Execute as</b></td><td>Me (the owner). Guests never sign in; every write uses the owner's access to the sheet.</td></tr>
+        <tr><td><b>Who has access</b></td><td>Anyone</td></tr>
+        <tr><td><b>Routing</b></td><td><code>doGet</code> in <code>Code.gs</code> reads <code>?page=index | dashboard | feedback</code> (or <code>/exec/dashboard</code>). Anything else shows the game.</td></tr>
+        <tr><td><b>Cost &amp; limits</b></td><td>Free. A normal Google account's quotas cover one event (5 groups, a few dozen guests) many times over.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call"><p><b>After editing code:</b> Deploy → Manage deployments → ✏️ Edit → Version: <b>New version</b> → Deploy. The URL stays the same. Choosing <b>New deployment</b> instead creates a new URL. If that happens, paste it into <code>WEB_APP_URL</code> in Config and regenerate every QR code.</p></div>
+  </section>
+
+  <!-- 4 -->
+  <section id="how">
+    <h2><span class="n">4</span>How it works</h2>
+
+    <h3>The game, start to finish</h3>
+    <div class="flow" aria-label="Game sequence">
+      <span>Pick group</span><i>→</i><span>Brief</span><i>→</i><span>Round 1 (max 50 of 100 coins)</span><i>→</i><span>Submit — row saved</span><i>→</i><span>Reveal code</span><i>→</i><span>3 setbacks revealed</span><i>→</i><span>Round 2 (coins left)</span><i>→</i><span>Submit — score saved</span><i>→</i><span>Year in review</span>
+    </div>
+    <p>Round 1 picks decide three setbacks. <b>Leak</b>: no Guardrails costs 20 points. <b>Board</b>: no Pilot halves the coins left for round 2. <b>Adoption</b>: neither Training nor the Managers workshop costs 20 points. Round 2 offers recovery options only for setbacks that hit, plus two growth options; <i>Take It Company-Wide</i> pays full points only if the group had both a pilot and a people option. Final score = points from picks − penalties, kept between 0 and 100. The best possible game scores 90.</p>
+    <p>Each device remembers its game in the browser, so a refresh doesn't lose progress. <b>Reset</b> (tap twice) clears it for the next group.</p>
+
+    <h3>What talks to what</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Page</th><th>Server function (Code.gs)</th><th>Sheet tab</th></tr></thead>
+      <tbody>
+        <tr><td>Every page, on open</td><td><code>doGet</code> → reads settings</td><td>Config, Options (read)</td></tr>
+        <tr><td>Game</td><td><code>submitRound</code>, <code>checkCode</code></td><td>Submissions (write)</td></tr>
+        <tr><td>Scoreboard</td><td><code>getBoard</code> every 15 s</td><td>Submissions (read)</td></tr>
+        <tr><td>Scoreboard button</td><td><code>newEventFromDashboard</code></td><td>Submissions → Archive</td></tr>
+        <tr><td>Feedback</td><td><code>submitFeedback</code></td><td>Feedback (write)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Pages call the server with <code>google.script.run</code>, so a group always knows whether a send worked. On failure they see “Couldn't send… tap again” and keep their answers. The scoreboard ranks each group by its latest round 2 row; a group with only a round 1 row shows “Playing…”.</p>
+    <p class="note">Security is deliberately light: anyone with the game link can submit, and scores are calculated on the phone. Fine for a room of guests. The reveal code is checked on the server and never sent to phones.</p>
+  </section>
+
+  <!-- 5 -->
+  <section id="rebuild">
+    <h2><span class="n">5</span>Rebuild it from scratch (about 10 minutes)</h2>
+    <ol class="steps">
+      <li>Create a blank Google Sheet, then open <b>Extensions → Apps Script</b>.</li>
+      <li>Replace <code>Code.gs</code> with the repo's <code>apps-script/Code.gs</code>. Add three HTML files named exactly <code>index</code>, <code>dashboard</code> and <code>feedback</code>, and paste in the matching files. Save.</li>
+      <li>Pick <code>setup</code> in the function dropdown and click <b>Run</b>. Approve the permission prompt (Advanced → Go to project → Allow). The five tabs appear with the original game's content.</li>
+      <li><b>Deploy → New deployment →</b> gear → <b>Web app</b>. Execute as <b>Me</b>, access <b>Anyone</b>. Copy the URL ending in <code>/exec</code>.</li>
+      <li>Paste that URL into <code>WEB_APP_URL</code> in the Config tab. Reload the sheet, then <b>Task Force → Show page links</b>.</li>
+      <li>Play one full test game on a phone, then tap <b>Start a new event</b> on the scoreboard to clear it.</li>
+    </ol>
+    <p class="note">Quickest alternative: <b>File → Make a copy</b> of the live sheet. The script is copied with it; just deploy the copy (step 4) and set its <code>WEB_APP_URL</code>. A script made at script.google.com instead of from the sheet also works: put the sheet's ID in <code>SHEET_ID</code> at the top of <code>Code.gs</code>. It won't have the sheet menu.</p>
+  </section>
+
+  <!-- 6 -->
+  <section id="run">
+    <h2><span class="n">6</span>On the day</h2>
+    <ol class="steps">
+      <li>Before guests arrive: scoreboard on the room screen, tap <b>Start a new event</b> twice. All groups read “Not started”.</li>
+      <li>Groups scan the game QR, tap their table number and play round 1.</li>
+      <li>When every group shows “Playing…”, read out the reveal code.</li>
+      <li>Groups play round 2. Scores appear within 15 seconds; click a row to show that group's moves.</li>
+      <li>Closing slide: feedback QR. Responses land in the Feedback tab.</li>
+    </ol>
+  </section>
+
+  <!-- 7 -->
+  <section id="adapt">
+    <h2><span class="n">7</span>Adapting it for another session</h2>
+    <h3>In the sheet (no code, no redeploy)</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>To change</th><th>Edit</th></tr></thead>
+      <tbody>
+        <tr><td>Number of groups, coin budgets, penalties, board cut</td><td>Config: <code>GROUPS</code>, <code>TOTAL_COINS</code>, <code>ROUND1_CAP</code>, <code>LEAK_PENALTY</code>, <code>ADOPT_PENALTY</code>, <code>BOARD_CUT_PERCENT</code></td></tr>
+        <tr><td>Reveal code, refresh rate, event name</td><td>Config: <code>REVEAL_CODE</code>, <code>REFRESH_SECONDS</code>, <code>EVENT_NAME</code></td></tr>
+        <tr><td>Feedback “liked most” choices</td><td>Config: <code>FEEDBACK_LIKED</code>, separated by <code>|</code></td></tr>
+        <tr><td>Cards: add, remove, rename, re-cost, re-score</td><td>Options tab, one row per card. <code>protects</code>, <code>only_if_hit</code> and <code>needs</code> use <code>leak</code>, <code>board</code>, <code>adopt</code>.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>In the code (then redeploy as a new version)</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>To change</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>The brief / Company X story</td><td><code>index.html</code> → <code>brief()</code></td></tr>
+        <tr><td>Setback names and story text</td><td><code>index.html</code> → <code>reveal()</code> and <code>finalScore()</code></td></tr>
+        <tr><td>Verdict lines and score bands (80 / 60 / 40)</td><td><code>index.html</code> → <code>verdict()</code></td></tr>
+        <tr><td>A fourth setback</td><td><code>Code.gs</code> → <code>SHOCKS</code>, <code>SUBMISSION_HEADERS</code>, <code>submitRound</code>, <code>getBoard</code>; <code>index.html</code> → <code>cov()</code>, <code>reveal()</code>, <code>finalScore()</code>; <code>dashboard.html</code> → <code>SHOCKS</code></td></tr>
+        <tr><td>Feedback questions</td><td><code>feedback.html</code> → <code>render()</code> and <code>missing()</code>; <code>Code.gs</code> → <code>FEEDBACK_HEADERS</code> and <code>submitFeedback</code></td></tr>
+        <tr><td>Colours and fonts</td><td>The <code>:root</code> block at the top of each HTML file</td></tr>
+        <tr><td>A new page</td><td>Add it to <code>PAGES</code> and <code>bootFor_</code> in <code>Code.gs</code>, and add an HTML file with the same name</td></tr>
+      </tbody>
+    </table></div>
+    <p>For a different activity altogether (a quiz, a poll, a sign-up), keep the skeleton: <code>doGet</code> routing, a page that calls <code>google.script.run</code>, an <code>append_</code> call that writes one row, and a read function for a live board. Try changes on a copy of the sheet first (File → Make a copy brings the script along) with its own deployment, so the live links stay untouched.</p>
+  </section>
+
+  <!-- 8 -->
+  <section id="trouble">
+    <h2><span class="n">8</span>If something goes wrong</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Code changes don't show</td><td>Deploy → Manage deployments → Edit → <b>New version</b>.</td></tr>
+        <tr><td>“Show page links” gives a wrong link</td><td>Set <code>WEB_APP_URL</code> in Config to the URL from Manage deployments.</td></tr>
+        <tr><td>Guests are asked to sign in to Google</td><td>Deployment access must be <b>Anyone</b>. If your Google Workspace admin doesn't allow that, deploy from an account that does.</td></tr>
+        <tr><td>Scoreboard shows last event's scores</td><td>Tap <b>Start a new event</b> twice.</td></tr>
+        <tr><td>Scoreboard says “Connection error”</td><td>It retries on every refresh. If it persists, open the web app URL directly to check the deployment.</td></tr>
+        <tr><td>A phone lost its game after a refresh</td><td>Its browser is blocking storage (private mode). The group re-picks its number and replays; its latest submission replaces the old one on the board.</td></tr>
+        <tr><td>“No spreadsheet” error when running setup</td><td>The script isn't attached to a sheet. Create it from the sheet, or set <code>SHEET_ID</code>.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <div class="foot">Files in <code>apps-script/</code>: <code>Code.gs</code> (server, menu, routing) · <code>index.html</code> (game) · <code>dashboard.html</code> (scoreboard) · <code>feedback.html</code> (feedback) · <code>README.md</code> (full setup guide).</div>
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var text = btn.getAttribute('data-copy');
+    var done = function (label) { btn.textContent = label; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    var fallback = function () {
+      var r = document.createRange(); var el = btn.previousElementSibling;
+      r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      done('Selected');
+    };
+    try { navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback); }
+    catch (e) { fallback(); }
+  });
+});
+</script>
+</body>
+</html>

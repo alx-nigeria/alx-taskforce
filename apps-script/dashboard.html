@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The Task Force — Live Scoreboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#03134F;--twi:#0452F0;--icy:#C5E5FF;--pale:#EBF6FF;--sun:#EAB308;--jas:#FDE791;--green:#1E9E6A;--red:#C0392B;--grey:#8FA4C9;--line:rgba(255,255,255,.1);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins',system-ui,sans-serif;background:var(--navy);color:#fff;min-height:100vh;
+    background-image:radial-gradient(circle at 85% 8%,rgba(4,82,240,.4),transparent 45%),radial-gradient(circle at 5% 95%,rgba(4,82,240,.28),transparent 45%);}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 30px 60px;}
+  .top{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:22px;}
+  .brand{font-weight:800;font-size:20px;} .brand span{color:var(--icy);font-weight:400;}
+  h1{font-size:34px;font-weight:800;letter-spacing:-.5px;margin-top:6px;}
+  h1 small{display:block;font-size:14px;font-weight:400;color:var(--icy);letter-spacing:.3px;margin-top:4px;}
+  .ctrl{display:flex;align-items:center;gap:14px;}
+  .status{font-size:12.5px;color:var(--grey);display:flex;align-items:center;gap:7px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--sun);box-shadow:0 0 0 4px rgba(234,179,8,.18);}
+  .dot.live{background:var(--green);box-shadow:0 0 0 4px rgba(30,158,106,.18);}
+  .rbtn{background:rgba(255,255,255,.1);border:1px solid var(--line);color:#fff;font-family:inherit;font-size:13px;font-weight:600;padding:9px 16px;border-radius:11px;cursor:pointer;}
+  .rbtn:hover{background:rgba(255,255,255,.18);}
+  /* leaderboard */
+  .board{display:flex;flex-direction:column;gap:12px;}
+  .row{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:20px;cursor:pointer;transition:.15s;}
+  .row:hover{background:rgba(255,255,255,.09);}
+  .row.lead{background:rgba(234,179,8,.13);border-color:rgba(234,179,8,.4);}
+  .rank{font-size:22px;font-weight:800;color:var(--grey);width:44px;text-align:center;flex:none;}
+  .row.lead .rank{color:var(--sun);}
+  .gname{font-size:20px;font-weight:700;flex:none;width:130px;}
+  .chips{flex:1;display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;}
+  .chip.hit{background:rgba(192,57,43,.22);color:#f3b4ac;}
+  .chip.clean{background:rgba(30,158,106,.2);color:#9be3c6;}
+  .chip.wait{background:rgba(255,255,255,.08);color:var(--grey);}
+  .score{font-size:40px;font-weight:800;flex:none;width:120px;text-align:right;letter-spacing:-1px;}
+  .score small{font-size:15px;color:var(--grey);font-weight:400;}
+  .score.pending{font-size:16px;color:var(--grey);font-weight:600;}
+  .caret{flex:none;color:var(--grey);transition:.2s;font-size:20px;}
+  .row.open .caret{transform:rotate(90deg);}
+  .detail{display:none;padding:2px 20px 8px 108px;}
+  .detail.show{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(-4px);}to{opacity:1;}}
+  .drow{display:flex;gap:26px;flex-wrap:wrap;padding:12px 0;}
+  .dcol .lab{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--grey);margin-bottom:6px;}
+  .moves{display:flex;gap:7px;flex-wrap:wrap;}
+  .move{font-size:12.5px;background:rgba(255,255,255,.09);border:1px solid var(--line);padding:5px 11px;border-radius:9px;}
+  .foot{margin-top:26px;text-align:center;color:var(--grey);font-size:13px;}
+  .newev{display:block;margin:22px auto 0;background:transparent;border:1px solid var(--line);color:var(--grey);font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 16px;border-radius:11px;cursor:pointer;transition:.15s;}
+  .newev:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+  .newev.armed{background:rgba(192,57,43,.22);border-color:rgba(192,57,43,.6);color:#f3b4ac;}
+  .newev:disabled{opacity:.6;cursor:default;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="brand">The Task Force <span>· ALX Enterprise</span></div>
+      <h1>Live scoreboard<small>Year One · how each group led the year</small></h1>
+    </div>
+    <div class="ctrl">
+      <div class="status" id="status"><span class="dot" id="dot"></span><span id="statustext">Connecting…</span></div>
+      <button class="rbtn" onclick="load()">Refresh</button>
+    </div>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="foot" id="foot"></div>
+  <button class="newev" id="newev" onclick="newEvent(this)">Start a new event</button>
+</div>
+
+<script>
+/* ============ CONFIG ============
+   Filled in by the server from the Config and Options tabs of the spreadsheet. */
+const BOOT=<?!= boot ?>;
+const CONFIG={GROUPS:BOOT.groups, REFRESH_MS:BOOT.refreshMs};
+const NAMES=BOOT.names;
+const SHOCKS=[['leak','Leak'],['board','Budget cut'],['adopt','Adoption stalled']];
+
+/* ============ DATA ============ */
+let OPEN={};
+// Rows come from the Submissions tab via getBoard() in Code.gs, oldest first.
+function fetchRows(){
+  return new Promise((ok,fail)=>google.script.run.withSuccessHandler(ok).withFailureHandler(fail).getBoard());
+}
+// Latest round 2 row = finished; otherwise latest round 1 row = still playing.
+function build(rows){
+  const g={};
+  rows.forEach(r=>{ if(!g[r.group])g[r.group]={group:r.group};
+    if(r.round==='2'){g[r.group].final=r;} else {g[r.group].r1row=r;} });
+  const groups=[];
+  for(let i=1;i<=CONFIG.GROUPS;i++){const rec=g[String(i)];
+    if(!rec){groups.push({group:String(i),status:'waiting'});continue;}
+    const f=rec.final;
+    if(f){ groups.push({group:rec.group,status:'done',score:f.score||0,
+      r1:f.r1, r2:f.r2, leak:f.leak, board:f.board, adopt:f.adopt}); }
+    else { const d=rec.r1row; groups.push({group:rec.group,status:'round1',
+      r1:d.r1, leak:d.leak, board:d.board, adopt:d.adopt}); }
+  }
+  return groups;
+}
+
+/* ============ RENDER ============ */
+function render(groups){
+  const done=groups.filter(x=>x.status==='done').sort((a,b)=>b.score-a.score);
+  const other=groups.filter(x=>x.status!=='done');
+  const ordered=[...done,...other];
+  let html='',rank=0;
+  ordered.forEach(x=>{
+    const isDone=x.status==='done'; if(isDone)rank++;
+    const lead=isDone&&rank===1;
+    let chips='';
+    if(x.status==='waiting'){chips=`<span class="chip wait">Not started</span>`;}
+    else{
+      const hits=SHOCKS.filter(([k])=>x[k]===false);
+      if(!hits.length) chips=`<span class="chip clean">Came through clean</span>`;
+      else chips=hits.map(([k,l])=>`<span class="chip hit">${l}</span>`).join('');
+      if(x.status==='round1') chips+=`<span class="chip wait">Round 1 in</span>`;
+    }
+    const scoreHtml = isDone ? `<div class="score">${x.score}<small>/100</small></div>`
+      : `<div class="score pending">${x.status==='round1'?'Playing…':'—'}</div>`;
+    const rankHtml = isDone ? (lead?'★':rank) : '·';
+    html+=`<div class="row ${lead?'lead':''} ${OPEN[x.group]?'open':''}" onclick="toggle('${x.group}',this)">
+      <div class="rank">${rankHtml}</div>
+      <div class="gname">Group ${x.group}</div>
+      <div class="chips">${chips}</div>
+      ${scoreHtml}
+      <div class="caret">›</div></div>
+    <div class="detail ${OPEN[x.group]?'show':''}" id="d${x.group}">
+      <div class="drow">
+        <div class="dcol"><div class="lab">First six months</div><div class="moves">${moves(x.r1)}</div></div>
+        ${x.r2?`<div class="dcol"><div class="lab">Second six months</div><div class="moves">${moves(x.r2)}</div></div>`:''}
+      </div></div>`;
+  });
+  document.getElementById('board').innerHTML=html;
+  const nDone=done.length;
+  document.getElementById('foot').textContent=`${nDone} of ${CONFIG.GROUPS} groups finished · updates every ${CONFIG.REFRESH_MS/1000}s`;
+}
+function moves(ids){ if(!ids||!ids.length)return `<span class="move" style="opacity:.5">nothing</span>`;
+  return ids.map(id=>`<span class="move">${NAMES[id]||id}</span>`).join(''); }
+function toggle(g,r){OPEN[g]=!OPEN[g];r.classList.toggle('open');const d=document.getElementById('d'+g);if(d)d.classList.toggle('show');}
+
+function setStatus(live){
+  document.getElementById('dot').className='dot'+(live?' live':'');
+  document.getElementById('statustext').textContent=live?'Live':'Connection error';
+}
+async function load(){
+  try{const rows=await fetchRows(); render(build(rows)); setStatus(true);}
+  catch(e){setStatus(false);}
+}
+// Two taps: the first arms the button for a few seconds, the second clears the board.
+// Rows move to the Archive tab in the sheet; nothing is deleted.
+let newEvArmed=null;
+const NEWEV_LABEL='Start a new event';
+function newEvent(btn){
+  if(!newEvArmed){
+    btn.textContent='Tap again to clear the scoreboard'; btn.classList.add('armed');
+    newEvArmed=setTimeout(()=>{newEvArmed=null; btn.textContent=NEWEV_LABEL; btn.classList.remove('armed');},4000);
+    return;
+  }
+  clearTimeout(newEvArmed); newEvArmed=null;
+  btn.disabled=true; btn.classList.remove('armed'); btn.textContent='Clearing…';
+  const done=label=>{btn.textContent=label; setTimeout(()=>{btn.disabled=false; btn.textContent=NEWEV_LABEL;},3000);};
+  google.script.run
+    .withSuccessHandler(n=>{OPEN={}; load(); done(n?`Cleared — ${n} rows moved to Archive`:'Already empty');})
+    .withFailureHandler(()=>done("Couldn't clear. Try again."))
+    .newEventFromDashboard();
+}
+load();
+setInterval(load, CONFIG.REFRESH_MS);
+</script>
+</body>
+</html>
