@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AI Maturity Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Layout: one question per screen in a single centred column; brand-navy header carries a four-section progress bar. */
+  :root{
+    --navy:#03134F; --twi:#0452F0; --icy:#C5E5FF; --sun:#EAB308;
+    --bg:#EEF3FC; --card:#FFFFFF; --pale:#EBF6FF; --ink:#20304F; --grey:#5B6B86; --line:#DCE6F7;
+    --good:#1E9E6A; --bad:#C0392B; --head:#03134F; --head-ink:#FFFFFF; --head-sub:#9DB6E8; --head-line:#03134F;
+    --accent-text:#0452F0; --bar:#0452F0;
+    --on:#03134F; --on-ink:#FFFFFF; --band1:#C5E5FF; --band2:#7FB0FF; --band3:#2F6FF0; --band4:#03134F;
+    --font:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --bg:#060E2B; --card:#0D1B4A; --pale:#12245C; --ink:#E4ECFF; --grey:#9DB0DB; --line:#23376F; --bad:#FF8A7A;
+    --head:#0A1747; --head-line:#23376F; --accent-text:#C5E5FF; --bar:#5C94FF;
+    --on:#C5E5FF; --on-ink:#03134F; --band1:#23376F; --band2:#3A68C8; --band3:#5C94FF; --band4:#C5E5FF; color-scheme:dark;}}
+  :root[data-theme="dark"]{
+    --bg:#060E2B; --card:#0D1B4A; --pale:#12245C; --ink:#E4ECFF; --grey:#9DB0DB; --line:#23376F; --bad:#FF8A7A;
+    --head:#0A1747; --head-line:#23376F; --accent-text:#C5E5FF; --bar:#5C94FF;
+    --on:#C5E5FF; --on-ink:#03134F; --band1:#23376F; --band2:#3A68C8; --band3:#5C94FF; --band4:#C5E5FF; color-scheme:dark;}
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.5;}
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--twi);outline-offset:2px;}
+  .wrap{max-width:600px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+  /* header */
+  .top{background:var(--head);border-bottom:1px solid var(--head-line);color:var(--head-ink);padding:16px 18px 14px;position:relative;overflow:hidden;}
+  .top::after{content:"";position:absolute;right:-50px;top:-60px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(4,82,240,.55),transparent 70%);pointer-events:none;}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1;}
+  .brand{font-weight:800;font-size:17px;}
+  .brand span{color:var(--icy);font-weight:400;}
+  .count{font-size:12.5px;font-weight:600;color:var(--head-sub);font-variant-numeric:tabular-nums;}
+  .segs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;position:relative;z-index:1;}
+  .seg{height:5px;border-radius:3px;background:rgba(197,229,255,.22);overflow:hidden;}
+  .seg i{display:block;height:100%;width:0;background:var(--sun);transition:width .3s ease;}
+  .seglabel{margin-top:9px;font-size:12px;color:var(--head-sub);font-weight:500;position:relative;z-index:1;min-height:18px;}
+  .seglabel b{color:var(--icy);font-weight:700;}
+
+  /* screens */
+  main{flex:1;padding:22px 18px 40px;display:flex;flex-direction:column;}
+  main.q{padding-top:clamp(36px,9vh,88px);}
+  .screen{animation:in .25s ease both;display:flex;flex-direction:column;gap:18px;}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.screen{animation:none}.seg i{transition:none}}
+  h1,h2{margin:0;color:var(--ink);text-wrap:balance;}
+  h1{font-size:28px;line-height:1.15;font-weight:800;}
+  h2{font-size:21px;line-height:1.3;font-weight:700;}
+  h1:focus,h2:focus{outline:none;}
+  .kick{font-size:11.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--accent-text);}
+  .lead{font-size:15px;color:var(--grey);margin:0;max-width:60ch;}
+
+  /* intro */
+  .sections{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  .sections li{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;}
+  .sections .n{flex:none;width:30px;height:30px;border-radius:9px;background:var(--pale);color:var(--accent-text);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  .sections b{display:block;font-size:14.5px;color:var(--ink);line-height:1.3;}
+  .sections small{font-size:12.5px;color:var(--grey);}
+  .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--grey);font-weight:500;}
+
+  /* buttons */
+  .btn{border:0;border-radius:14px;padding:16px 20px;font-size:16px;font-weight:700;cursor:pointer;background:var(--sun);color:#03134F;box-shadow:0 8px 20px rgba(3,19,79,.16);transition:transform .1s;}
+  .btn:active{transform:scale(.98);}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;}
+  .link{background:none;border:0;color:var(--grey);font-size:13.5px;font-weight:600;cursor:pointer;padding:8px 0;align-self:flex-start;}
+  .link:hover{color:var(--ink);}
+
+  /* question */
+  .opts{display:grid;gap:11px;}
+  .opt{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;min-height:68px;padding:15px 16px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;font-size:15px;font-weight:500;color:var(--ink);cursor:pointer;transition:transform .1s,border-color .15s,background .15s;box-shadow:0 3px 12px rgba(3,19,79,.05);}
+  .opt:hover{border-color:var(--twi);}
+  .opt:active{transform:scale(.99);}
+  .opt .ltr{flex:none;width:30px;height:30px;border-radius:9px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--grey);margin-top:-2px;}
+  .opt[aria-checked="true"]{background:var(--on);color:var(--on-ink);border-color:var(--on);}
+  .opt[aria-checked="true"] .ltr{background:var(--sun);border-color:var(--sun);color:#03134F;}
+  .qnote{font-size:12.5px;color:var(--grey);margin:0;}
+  .qnote a,.foot a{color:var(--accent-text);}
+
+  /* gauge */
+  .gaugebox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 16px 18px;text-align:center;}
+  .gauge{width:100%;max-width:340px;height:auto;display:block;margin:0 auto;}
+  .gauge text{font-family:var(--font);}
+  .tier{font-size:22px;font-weight:800;color:var(--ink);margin:6px 0 2px;}
+  .phase{font-size:13.5px;color:var(--grey);margin:0;}
+  .locked .gauge{filter:blur(7px);opacity:.75;}
+  .locked .tier,.locked .phase{filter:blur(6px);user-select:none;}
+
+  /* gate */
+  .gate{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px;display:grid;gap:12px;}
+  .gate label{font-size:13px;font-weight:600;color:var(--ink);display:grid;gap:6px;}
+  .gate input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;font-family:inherit;font-size:15px;color:var(--ink);background:var(--bg);}
+  .gate input:focus{outline:none;border-color:var(--twi);}
+  .gate input.bad{border-color:var(--bad);}
+  .err{color:var(--bad);font-size:12.5px;font-weight:600;min-height:0;}
+  .preview{font-size:12px;background:var(--pale);color:var(--ink);border-radius:10px;padding:9px 12px;}
+  .sendzone{position:relative;height:92px;}
+  .tallyframe{display:block;width:calc(100% / 1.4);height:66px;transform:scale(1.4);transform-origin:0 0;border:0;color-scheme:light;opacity:.4;transition:opacity .2s;}
+  .sendzone.on .tallyframe{opacity:1;}
+  .blocker{position:absolute;inset:0;z-index:2;cursor:pointer;}
+  .sendzone.on .blocker{display:none;}
+  .hint{font-size:12.5px;color:var(--grey);margin:0;}
+  .hint a{color:var(--accent-text);}
+
+  /* results */
+  .bars{display:grid;gap:14px;}
+  .bar .lab{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+  .bar .lab span:last-child{color:var(--grey);font-variant-numeric:tabular-nums;font-weight:700;}
+  .track{height:10px;border-radius:5px;background:var(--line);overflow:hidden;}
+  .track i{display:block;height:100%;border-radius:5px;background:var(--bar);width:0;transition:width .7s cubic-bezier(.2,.8,.2,1);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px;display:grid;gap:14px;}
+  .card h3{margin:0;font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--grey);font-weight:700;}
+  .card p{margin:0;font-size:14.5px;}
+  .next{background:linear-gradient(135deg,#0452F0,#03134F);color:#fff;border-radius:18px;padding:18px 16px;}
+  .next h3{margin:0 0 6px;font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--sun);font-weight:700;}
+  .next p{margin:0;font-size:15px;}
+  .next b{color:var(--icy);}
+  .foot{font-size:12.5px;color:var(--grey);}
+  .sent{margin:0;font-size:13.5px;color:var(--ink);background:var(--pale);border-radius:12px;padding:11px 14px;}
+  .debug{font-size:12px;background:var(--card);border:1px dashed var(--grey);border-radius:12px;padding:12px 14px;}
+  .debug summary{cursor:pointer;font-weight:700;color:var(--ink);}
+  .debug code{display:block;margin-top:8px;word-break:break-all;color:var(--ink);font-size:11.5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="row"><div class="brand">alx <span>Enterprise</span></div><div class="count" id="count"></div></div>
+    <div class="segs" id="segs" aria-hidden="true"></div>
+    <div class="seglabel" id="seglabel"></div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ---------- Configuration ----------
+   TALLY_FORM_ID: leave null for preview mode (a stand-in contact form, nothing is sent).
+   Set it to the id of your Tally form (the part after tally.so/r/) to go live. */
+const CONFIG = {
+  TALLY_FORM_ID: '0Q2da6',
+  CONTACT_EMAIL: 'gm@alxafrica.com'
+};
+
+/* ---------- Content (copied from the Tally form lbPy86) ---------- */
+const SECTIONS = [
+  {name:'People & Skills', tag:'Is your team ready, or lagging?'},
+  {name:'Operational Risks & Data Safety', tag:'Are you exposed?'},
+  {name:'Leadership & ROI', tag:'Are you wasting budget?'},
+  {name:'Local Fit & Resilience', tag:'Is your team efficient?'}
+];
+const POINTS = {A:1, B:2, C:5};   // same weights as the Tally calculated field
+const QUESTIONS = [
+  {s:0, q:'How good is the work your staff produce with AI tools like ChatGPT or Claude?', o:['Generic copy-paste answers','A few power users; the rest are trial-and-error','Power users, high-value prompts and results']},
+  {s:0, q:'Can non-tech teams (HR, Sales, Finance, Legal) automate their own repetitive tasks without IT involvement?', o:['No. They are limited to using AI as a chat box','Some use a few advanced features like Gems, Artefacts and Skills','Yes. They build and run no-code automations']},
+  {s:0, q:'How do staff keep up with fast-moving AI changes?', o:['Staff upskill on their own, if at all','Occasional links and videos; no defined training roadmap','We have mandatory, continuous, department-specific training']},
+  {s:1, q:'Do you know which AI tools staff use with company data?', o:['No idea. Anything goes',"We've warned them; no policy or strict checks",'We have a clear policy, training and IT controls']},
+  {s:1, q:'How confidently can your staff use AI to process customer or corporate data while fully complying with the Nigeria Data Protection Act (NDPA)?', o:["Most don't know it's a risk","Legal and IT get it; frontline staff don't (Sales, Customer Service, HR)",'Everyone anonymises data and uses approved tools'], note:'<a href="https://nigeriadataprotection.com/nigeria-data-protection-act-ndpa-explained-essential-guide/" target="_blank" rel="noopener">What is the NDPA?</a>'},
+  {s:1, q:'Does your team understand AI errors and know how to catch them before they reach clients or executives?', o:['Weak. Staff tend to trust AI outputs blindly and have accidentally sent incorrect numbers to stakeholders.','Staff know AI can make mistakes, but auditing is done casually','We have a framework to verify every AI output.']},
+  {s:2, q:'How well do your C-suite and board understand what AI can realistically do in your business?', o:['Low. Leadership sees AI as a hype or a threat','Moderate. Leadership wants to adopt AI to cut costs, but unsure where to start','Leadership is highly literate in AI capabilities and where to invest']},
+  {s:2, q:'How do your employees feel about AI and Digital transformation?', o:['Staff are afraid AI will replace them, so they avoid learning new tools.','Staff will use the tools if forced by management, but there is no drive to innovate.','Employees view AI as a co-pilot and push for more']},
+  {s:2, q:'Can department heads spot where AI will pay off?', o:['Managers have no idea how AI applies to their specific departments.','Managers have ideas but lack the framework to build a business case.','Every department head runs a clear AI roadmap with measurable productivity targets.']},
+  {s:3, q:'Does your team use the AI built into tools you already pay for (Microsoft 365, Google Workspace, Canva, Zoho)?', o:["Didn't know those features exist",'A few people use them','We use them fully before buying anything new']},
+  {s:3, q:'How does your company manage AI tool subscriptions?', o:['Staff pay using personal cards for what tools they need',"Some are company-paid, but no one tracks if they're worth it",'Centrally managed: the right tool per role, free tiers used well']},
+  {s:3, q:'If a key employee resigns today, could someone take over from them tomorrow?', o:["Unfortunately, it's all in their head or personal accounts",'Eventually, after weeks of hand-holding','Everything is documented. We keep a shared prompt library on company accounts']}
+];
+const TIERS = [
+  {id:'nascent', min:12, max:28, name:'Nascent', phase:'The "High Risk, High Manual Load" phase',
+   insight:'Your team is buried in manual work, and Shadow AI is leaving your data exposed.',
+   context:'Different departments are running isolated tests without a central plan or clear data rules. Early days mean laying groundwork and proving AI actually works through small tests.',
+   focus:'Fix your data rules, run small pilot, and teach staff basic AI literacy.',
+   next:'The AI Baseline & Data Safety Bootcamp.', nextText:'A 2-day practical session for all staff covering data compliance, basic prompt engineering, and NDPA guardrails.'},
+  {id:'developing', min:29, max:40, name:'Developing', phase:'The "Fragmented Productivity" phase',
+   insight:'Your team is experimenting with AI, but you are wasting money on mismatched tools and trial-and-error prompting that produces low-quality work.',
+   focus:"Standardise what's working, connect isolated pilots that already exist within the team, and start formalising data sharing and basic oversight before further scaling.",
+   next:'AI Optimization Workshops.', nextText:'Hands-on masterclasses tailored specifically to your separate units (e.g., AI for HR Specialists, AI for Finance and Bookkeeping, AI for Modern Sales & Marketing Teams).'},
+  {id:'mature', min:41, max:50, name:'Mature', phase:'The "Operational Bottleneck" phase',
+   insight:'Your digital foundation is solid, but you are vulnerable to talent flight (Japa) and lack the workflow automation skills to scale your efficiency without expanding headcount.',
+   context:"You've had real wins. AI is integrated into key business functions with established governance and operational processes. Core software directly supports day-to-day operations. This is the time to scale and build durable systems.",
+   focus:'Set-up formal AI governance, enterprise platforms, cross-department AI teams.',
+   next:'AI Automation & Leadership Accelerator.', nextText:'Trains department heads in change management, no-code automation and tech resilience.'},
+  {id:'transformative', min:51, max:60, name:'Transformative', phase:'The "Market Leader" phase',
+   insight:'You are leading the market, but to maintain your edge against global players, you need to transition your technical team into advanced model optimisation and localised context fine-tuning.',
+   focus:'Make AI central to everything, build an innovation mindset, connect with cutting-edge innovations.',
+   next:'Advanced AI Engineering & Strategy Retainer.', nextText:'Senior consulting and specialist training for your data and IT teams.'}
+];
+
+/* ---------- State ---------- */
+const LET = ['A','B','C'];
+const S = {step:-1, answers:Array(QUESTIONS.length).fill(null), unlocked:false, name:'', email:''};  // step -1 intro, 0..11 questions, 12 gate, 13 report
+const GATE = QUESTIONS.length, REPORT = GATE + 1;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Scoring ---------- */
+const score = () => S.answers.reduce((t,a) => t + (a ? POINTS[a] : 0), 0);
+const tierFor = n => TIERS.find(t => n >= t.min && n <= t.max) || TIERS[0];
+function sectionScore(i){
+  return QUESTIONS.reduce((t,q,k) => t + (q.s === i && S.answers[k] ? POINTS[S.answers[k]] : 0), 0);
+}
+/* What the Tally form receives as hidden fields: q1..q12 (A/B/C), score, tier, report, name and email. */
+/* The report as plain text, one paragraph per section. Tally drops it into the respondent email with @report. */
+function reportText(){
+  const sc = score(), t = tierFor(sc);
+  const parts = SECTIONS.map((s,i) => s.name + ' ' + sectionScore(i) + '/15').join('; ');
+  return ['Overall AI maturity: ' + sc + '/60, ' + t.name + ' (' + t.phase + ').',
+          'By area: ' + parts + '.',
+          'Insight: ' + t.insight,
+          t.context ? 'Context: ' + t.context : '',
+          'Focus: ' + t.focus,
+          'Your next step: ' + t.next + ' ' + t.nextText].filter(Boolean).join('\n\n');
+}
+function hiddenFields(){
+  const f = {};
+  S.answers.forEach((a,i) => f['q' + (i+1)] = a);
+  f.score = String(score());
+  f.tier = tierFor(score()).name;
+  f.report = reportText();
+  f.name = S.name; f.email = S.email;
+  return f;
+}
+const queryString = () => new URLSearchParams(hiddenFields()).toString();
+
+/* ---------- Header ---------- */
+function drawHeader(){
+  const inQ = S.step >= 0 && S.step < GATE;
+  const done = S.step >= GATE;
+  $('count').textContent = inQ ? (S.step + 1) + ' of ' + QUESTIONS.length : (done ? 'Almost there' : '');
+  $('segs').innerHTML = SECTIONS.map((_,i) => {
+    const qs = QUESTIONS.map((q,k) => q.s === i ? k : -1).filter(k => k >= 0);
+    const answered = qs.filter(k => S.answers[k]).length;
+    return '<div class="seg"><i style="width:' + Math.round(answered / qs.length * 100) + '%"></i></div>';
+  }).join('');
+  $('seglabel').innerHTML = inQ ? '<b>' + esc(SECTIONS[QUESTIONS[S.step].s].name) + '</b> · ' + esc(SECTIONS[QUESTIONS[S.step].s].tag) : '';
+}
+
+/* ---------- Screens ---------- */
+function show(html){
+  const m = $('main');
+  m.className = (S.step >= 0 && S.step < GATE) ? 'q' : '';
+  m.innerHTML = '<section class="screen">' + html + '</section>';
+  drawHeader();
+  const h = m.querySelector('h1,h2');
+  if(h){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); }
+  window.scrollTo(0,0);
+}
+
+function intro(){
+  S.step = -1;
+  show(`
+    <div class="kick">AI maturity assessment</div>
+    <h1>How prepared is your team for AI disruption?</h1>
+    <p class="lead">Successful AI adoption takes more than a subscription. Answer 12 quick questions to see where your organisation stands on people, data safety, leadership and resilience. You get your score straight away and a tailored report by email.</p>
+    <ul class="sections">${SECTIONS.map((s,i) => `<li><span class="n">${i+1}</span><div><b>${esc(s.name)}</b><small>${esc(s.tag)}</small></div></li>`).join('')}</ul>
+    <div class="meta"><span>12 questions</span><span>About 3 minutes</span><span>No wrong answers</span></div>
+    <button class="btn" id="start">Start the assessment</button>`);
+  $('start').onclick = () => go(0);
+}
+
+function question(){
+  const i = S.step, q = QUESTIONS[i], cur = S.answers[i];
+  show(`
+    <h2 id="qtitle">${esc(q.q)}</h2>
+    ${q.note ? '<p class="qnote">' + q.note + '</p>' : ''}
+    <div class="opts" role="radiogroup" aria-labelledby="qtitle">
+      ${q.o.map((t,k) => `<button class="opt" role="radio" aria-checked="${cur === LET[k]}" data-k="${k}"><span class="ltr">${LET[k]}</span><span>${esc(t)}</span></button>`).join('')}
+    </div>
+    <button class="link" id="back">${i === 0 ? '← Back to start' : '← Previous question'}</button>`);
+  document.querySelectorAll('.opt').forEach(b => b.onclick = () => choose(+b.dataset.k));
+  $('back').onclick = () => i === 0 ? intro() : go(i - 1);
+}
+
+const ADVANCE_MS = 900;   // pause after a pick so the choice registers before the next question
+let advanceTimer = null;
+function choose(k){
+  const at = S.step;
+  S.answers[at] = LET[k];
+  document.querySelectorAll('.opt').forEach((b,j) => b.setAttribute('aria-checked', j === k));
+  drawHeader();
+  clearTimeout(advanceTimer);   // changing your mind inside the pause restarts it, never skips a question
+  advanceTimer = setTimeout(() => { if(S.step === at) go(at + 1); }, ADVANCE_MS);
+}
+
+function go(n){
+  clearTimeout(advanceTimer);
+  S.step = n;
+  if(n < GATE) question(); else if(n === GATE) gate(); else report();
+}
+
+/* Gauge: semicircle from 12 to 60, four tier bands, marker at the score. */
+function gauge(sc, locked){
+  const cx = 150, cy = 140, r = 108, w = 22;
+  const pt = (v, rad) => { const a = Math.PI * (1 - (v - 12) / 48); return [cx + rad * Math.cos(a), cy - rad * Math.sin(a)]; };
+  const arc = (a, b) => { const [x1,y1] = pt(a, r), [x2,y2] = pt(b, r); return `M${x1.toFixed(1)} ${y1.toFixed(1)} A${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`; };
+  const bands = [[12,28.5,'--band1'],[28.5,40.5,'--band2'],[40.5,50.5,'--band3'],[50.5,60,'--band4']];
+  const [mx,my] = pt(Math.max(12, Math.min(60, sc)), r);
+  return `<svg class="gauge" viewBox="0 0 300 175" role="img" aria-label="${locked ? 'Score hidden until you enter your details' : 'Score ' + sc + ' out of 60'}">
+    ${bands.map(b => `<path d="${arc(b[0], b[1])}" fill="none" stroke="var(${b[2]})" stroke-width="${w}"/>`).join('')}
+    ${locked ? '' : `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="13" fill="var(--sun)" stroke="var(--card)" stroke-width="4"/>`}
+    <text x="${cx}" y="${cy - 18}" text-anchor="middle" font-size="46" font-weight="800" fill="var(--ink)">${locked ? '??' : sc}</text>
+    <text x="${cx}" y="${cy + 6}" text-anchor="middle" font-size="13" font-weight="600" fill="var(--grey)">out of 60</text>
+    <text x="${pt(12, r)[0]}" y="${cy + 28}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--grey)">12</text>
+    <text x="${pt(60, r)[0]}" y="${cy + 28}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--grey)">60</text>
+  </svg>`;
+}
+
+/* One screen. Name and email are our own fields. Below them sits the Tally form, which has no visible
+   fields, only its Submit button. The button is the real submission, so it stays covered until the details
+   are valid and the form has reloaded with them as hidden fields. */
+function gate(){
+  const live = !!CONFIG.TALLY_FORM_ID;
+  S.sending = live;
+  show(`
+    <div class="kick">All 12 answered</div>
+    <h2>Your score is ready. Where should we email your report?</h2>
+    <div class="gaugebox locked">${gauge(score(), true)}<div class="tier">Nascent</div><p class="phase">Your tier appears after this step</p></div>
+    <form class="gate" id="gateform" novalidate>
+      <label for="nm">Name<input id="nm" type="text" autocomplete="name" placeholder="Johnson Opelope" value="${esc(S.name)}"></label>
+      <label for="em">Work email<input id="em" type="email" autocomplete="email" placeholder="jopelope@work.eu" value="${esc(S.email)}"></label>
+      <div class="err" id="err" role="alert"></div>
+      ${live ? `<div class="sendzone" id="zone"><iframe class="tallyframe" id="tally" title="Send my report"></iframe><div class="blocker" id="blocker"></div></div>
+        <p class="hint" id="hint" hidden>Button not showing? <a id="direct" target="_blank" rel="noopener">Open the form directly</a>.</p>`
+      : `<div class="preview"><b>Preview mode.</b> In the live page, Tally's own Submit button sits here instead of this one. Nothing is sent.</div>
+        <button class="btn" type="submit">Show my score and email my report</button>`}
+    </form>
+    <button class="link" id="back">← Change an answer</button>`);
+  $('back').onclick = () => go(GATE - 1);
+  const nm = $('nm'), em = $('em'), err = $('err');
+  const key = () => nm.value.trim() + '\n' + em.value.trim();
+  const valid = () => nm.value.trim().length > 1 && em.value.trim() !== '' && em.checkValidity();
+  const check = () => {
+    const okN = nm.value.trim().length > 1, okE = em.value.trim() !== '' && em.checkValidity();
+    nm.classList.toggle('bad', !okN); em.classList.toggle('bad', !okE);
+    err.textContent = !okN ? 'Please enter your name.' : !okE ? 'Please enter a valid work email.' : '';
+    return okN && okE;
+  };
+  if(!live){
+    $('gateform').onsubmit = e => { e.preventDefault(); if(check()){ S.name = nm.value.trim(); S.email = em.value.trim(); unlock(); } };
+    return;
+  }
+  const zone = $('zone'), f = $('tally');
+  let frameKey = null, frameLoaded = false, timer = null;
+  const load = () => {
+    S.name = nm.value.trim(); S.email = em.value.trim();
+    frameKey = key(); frameLoaded = false;
+    const qs = queryString();
+    f.src = 'https://tally.so/embed/' + encodeURIComponent(CONFIG.TALLY_FORM_ID) + '?hideTitle=1&alignLeft=1&transparentBackground=1&' + qs;
+    $('direct').href = 'https://tally.so/r/' + encodeURIComponent(CONFIG.TALLY_FORM_ID) + '?' + qs;
+  };
+  const sync = () => zone.classList.toggle('on', valid() && frameLoaded && frameKey === key());
+  f.onload = () => { frameLoaded = true; sync(); };
+  const changed = () => {
+    sync();
+    clearTimeout(timer);
+    if(valid() && frameKey !== key()) timer = setTimeout(load, 450);
+  };
+  nm.oninput = em.oninput = changed;
+  $('blocker').onclick = () => { if(check() && !zone.classList.contains('on')) err.textContent = 'One moment, getting ready…'; };
+  $('gateform').onsubmit = e => e.preventDefault();
+  load();                                  // warm up the form while they type
+  setTimeout(() => { if(!frameLoaded) $('hint').hidden = false; }, 9000);
+  if(valid()) changed();
+}
+
+window.addEventListener('message', e => {
+  if(!CONFIG.TALLY_FORM_ID || S.step !== GATE || !S.sending) return;
+  let d = e.data;
+  if(typeof d === 'string'){ try{ d = JSON.parse(d); }catch(_){ return; } }
+  if(d && d.event === 'Tally.FormSubmitted') unlock();
+});
+
+function unlock(){ S.unlocked = true; go(REPORT); }
+
+function report(){
+  const sc = score(), t = tierFor(sc);
+  const live = !!CONFIG.TALLY_FORM_ID;
+  const qs = queryString();
+  show(`
+    <div class="kick">Your business AI maturity report${S.name ? ' · ' + esc(S.name) : ''}</div>
+    <div class="gaugebox">${gauge(sc, false)}<div class="tier">${esc(t.name)}</div><p class="phase">${esc(t.phase)}</p></div>
+    <div class="card">
+      <h3>Where you scored</h3>
+      <div class="bars">${SECTIONS.map((s,i) => { const v = sectionScore(i);
+        return `<div class="bar"><div class="lab"><span>${esc(s.name)}</span><span>${v} / 15</span></div><div class="track"><i data-w="${Math.round((v-3)/12*100)}"></i></div></div>`; }).join('')}</div>
+    </div>
+    <div class="card">
+      <h3>Your results</h3>
+      <p><b>Insight.</b> ${esc(t.insight)}</p>
+      ${t.context ? '<p><b>Context.</b> ' + esc(t.context) + '</p>' : ''}
+      <p><b>Focus.</b> ${esc(t.focus)}</p>
+    </div>
+    <div class="next"><h3>Your next step</h3><p><b>${esc(t.next)}</b> ${esc(t.nextText)}</p></div>
+    <p class="sent">${S.email ? 'A copy of this report is on its way to <b>' + esc(S.email) + '</b>.' : 'A copy of this report is on its way to your inbox.'}</p>
+    <p class="foot">AI maturity covers data, people, processes and governance working together; get one part wrong and everything stalls. McKinsey's 2025 State of AI report found 88% of companies now use AI in at least one business function. For follow-up, email ${esc(CONFIG.CONTACT_EMAIL)}.</p>
+    ${live ? '' : `<details class="debug"><summary>Preview: what Tally would receive (${qs.length} characters)</summary><code>?${esc(qs)}</code></details>`}
+    <button class="link" id="again">↺ Retake the assessment</button>`);
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    document.querySelectorAll('.track i').forEach(i => i.style.width = i.dataset.w + '%')));
+  $('again').onclick = () => { S.answers.fill(null); S.unlocked = false; S.name = ''; S.email = ''; intro(); };
+}
+
+/* Keyboard: 1-3 or A-C picks an option on question screens. */
+document.addEventListener('keydown', e => {
+  if(S.step < 0 || S.step >= GATE || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = '123'.indexOf(e.key) >= 0 ? '123'.indexOf(e.key) : 'abc'.indexOf(e.key.toLowerCase());
+  if(k >= 0 && k < 3) choose(k);
+});
+
+intro();
+</script>
+</body>
+</html>
