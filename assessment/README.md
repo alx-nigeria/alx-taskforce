@@ -2,7 +2,7 @@
 
 A one-question-at-a-time front end for Tally form `0Q2da6`. The page scores the answers itself, shows the report, and hands everything to Tally as hidden fields. Tally stores the response and a webhook triggers the report email.
 
-**Previews (private artifacts, open while signed in as the owner):**
+**Previews (shared as "Anyone with the link"):**
 - Assessment, demo mode with no Tally: https://claude.ai/artifact/6n8WarQmKfkcW897iBD2ns
 - Report email as respondents see it: https://claude.ai/artifact/WzsP4MGJh2DZe38bg65y5e
 

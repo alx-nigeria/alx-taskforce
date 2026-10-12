@@ -121,7 +121,11 @@
   .next{background:linear-gradient(135deg,#0452F0,#03134F);color:#fff;border-radius:18px;padding:18px 16px;}
   .next h3{margin:0 0 6px;font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--sun);font-weight:700;}
   .next p{margin:0;font-size:15px;}
-  .next b{color:var(--icy);}
+  .prog{padding:12px 0;border-top:1px solid rgba(197,229,255,.22);}
+  .prog:first-of-type{border-top:0;padding-top:4px;}
+  .pname{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-weight:700;font-size:15.5px;color:#fff;margin-bottom:4px;}
+  .pname span{font-size:11.5px;font-weight:600;color:var(--navy);background:var(--sun);border-radius:999px;padding:2px 9px;}
+  .prog p{color:var(--icy);font-size:14px;}
   .foot{font-size:12.5px;color:var(--grey);}
   .sent{margin:0;font-size:13.5px;color:var(--ink);background:var(--pale);border-radius:12px;padding:11px 14px;}
   .debug{font-size:12px;background:var(--card);border:1px dashed var(--grey);border-radius:12px;padding:12px 14px;}
@@ -175,20 +179,32 @@ const TIERS = [
    insight:'Your team is buried in manual work, and Shadow AI is leaving your data exposed.',
    context:'Different departments are running isolated tests without a central plan or clear data rules. Early days mean laying groundwork and proving AI actually works through small tests.',
    focus:'Fix your data rules, run small pilot, and teach staff basic AI literacy.',
-   next:'The AI Baseline & Data Safety Bootcamp.', nextText:'A 2-day practical session for all staff covering data compliance, basic prompt engineering, and NDPA guardrails.'},
+   programmes:[
+     {name:"AI Productivity", duration:"1–2 days", why:"A fast first step for the whole team: prompt mastery, reusable playbooks and safe, responsible AI use built in."},
+     {name:"AI Career Essentials", duration:"6 weeks, online", why:"Builds a shared AI baseline and role-based workflows, ending in an applied portfolio your leaders review at a showcase."}
+   ]},
   {id:'developing', min:29, max:40, name:'Developing', phase:'The "Fragmented Productivity" phase',
    insight:'Your team is experimenting with AI, but you are wasting money on mismatched tools and trial-and-error prompting that produces low-quality work.',
    focus:"Standardise what's working, connect isolated pilots that already exist within the team, and start formalising data sharing and basic oversight before further scaling.",
-   next:'AI Optimization Workshops.', nextText:'Hands-on masterclasses tailored specifically to your separate units (e.g., AI for HR Specialists, AI for Finance and Bookkeeping, AI for Modern Sales & Marketing Teams).'},
+   programmes:[
+     {name:"AI Productivity", duration:"1–2 days", why:"Run it department by department to standardise what already works. Prompt mastery and reusable team playbooks replace trial and error."},
+     {name:"AI Strategic Roadmap", duration:"1–2 days", why:"Decide what to build, buy or pilot, so isolated experiments and mismatched tools become one prioritised backlog."}
+   ]},
   {id:'mature', min:41, max:50, name:'Mature', phase:'The "Operational Bottleneck" phase',
    insight:'Your digital foundation is solid, but you are vulnerable to talent flight (Japa) and lack the workflow automation skills to scale your efficiency without expanding headcount.',
    context:"You've had real wins. AI is integrated into key business functions with established governance and operational processes. Core software directly supports day-to-day operations. This is the time to scale and build durable systems.",
    focus:'Set-up formal AI governance, enterprise platforms, cross-department AI teams.',
-   next:'AI Automation & Leadership Accelerator.', nextText:'Trains department heads in change management, no-code automation and tech resilience.'},
+   programmes:[
+     {name:"AI Strategic Roadmap", duration:"1–2 days", why:"Sets formal AI governance, platform choices and an execution-ready backlog for scaling without adding headcount."},
+     {name:"High-Performance Execution", duration:"1–2 days", why:"Clarifies roles, decision rights and escalation paths, so cross-department AI work keeps moving when key people leave."}
+   ]},
   {id:'transformative', min:51, max:60, name:'Transformative', phase:'The "Market Leader" phase',
    insight:'You are leading the market, but to maintain your edge against global players, you need to transition your technical team into advanced model optimisation and localised context fine-tuning.',
    focus:'Make AI central to everything, build an innovation mindset, connect with cutting-edge innovations.',
-   next:'Advanced AI Engineering & Strategy Retainer.', nextText:'Senior consulting and specialist training for your data and IT teams.'}
+   programmes:[
+     {name:"AI Strategic Roadmap", duration:"1–2 days", why:"Weighs strategic bets against quick wins, so AI stays central to how you compete."},
+     {name:"Decision Intelligence", duration:"1–2 days", why:"Moves senior leaders and data teams from descriptive to prescriptive analytics, with KPI logic and a shortlist of high-value use cases."}
+   ]}
 ];
 
 /* ---------- State ---------- */
@@ -214,7 +230,7 @@ function reportText(){
           'Insight: ' + t.insight,
           t.context ? 'Context: ' + t.context : '',
           'Focus: ' + t.focus,
-          'Your next step: ' + t.next + ' ' + t.nextText].filter(Boolean).join('\n\n');
+          'Your next steps: ' + t.programmes.map(p => p.name + ' (' + p.duration + '): ' + p.why).join(' | ')].filter(Boolean).join('\n\n');
 }
 function hiddenFields(){
   const f = {};
@@ -395,7 +411,7 @@ function report(){
       ${t.context ? '<p><b>Context.</b> ' + esc(t.context) + '</p>' : ''}
       <p><b>Focus.</b> ${esc(t.focus)}</p>
     </div>
-    <div class="next"><h3>Your next step</h3><p><b>${esc(t.next)}</b> ${esc(t.nextText)}</p></div>
+    <div class="next"><h3>Your next steps</h3>${t.programmes.map(p => `<div class="prog"><div class="pname">${esc(p.name)}<span>${esc(p.duration)}</span></div><p>${esc(p.why)}</p></div>`).join('')}</div>
     <p class="sent">${S.email ? 'A copy of this report is on its way to <b>' + esc(S.email) + '</b>.' : 'A copy of this report is on its way to your inbox.'}</p>
     <p class="foot">AI maturity covers data, people, processes and governance working together; get one part wrong and everything stalls. McKinsey's 2025 State of AI report found 88% of companies now use AI in at least one business function. For follow-up, email ${esc(CONFIG.CONTACT_EMAIL)}.</p>
     ${live ? '' : `<details class="debug"><summary>Preview: what Tally would receive (${qs.length} characters)</summary><code>?${esc(qs)}</code></details>`}

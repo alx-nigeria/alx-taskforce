@@ -87,7 +87,7 @@ function readFields_(fields) {
 // The page sends the report as labelled paragraphs. Split on the labels so the copy lives in one place
 // (assessment/index.html) and this script only handles layout.
 function parseReport_(report) {
-  const labels = ['Overall AI maturity', 'By area', 'Insight', 'Context', 'Focus', 'Your next step'];
+  const labels = ['Overall AI maturity', 'By area', 'Insight', 'Context', 'Focus', 'Your next steps'];
   const re = new RegExp('(' + labels.join('|') + '):\\s*', 'g');
   const hits = [];
   let m;
@@ -103,16 +103,18 @@ function parseReport_(report) {
     return a ? { name: a[1], points: Number(a[2]) } : null;
   }).filter(Boolean);
 
-  const next = parts['Your next step'] || '';
-  const cut = next.indexOf('. ');
+  // "Name (duration): why | Name (duration): why"
+  const programmes = (parts['Your next steps'] || '').split('|').map(function (p) {
+    const x = p.trim().match(/^(.*?)\s*\(([^)]*)\):\s*([\s\S]*)$/);
+    return x ? { name: x[1], duration: x[2], why: x[3].trim() } : null;
+  }).filter(Boolean);
   return {
     phase: phaseMatch ? phaseMatch[1] : '',
     areas: areas,
     insight: parts['Insight'] || '',
     context: parts['Context'] || '',
     focus: parts['Focus'] || '',
-    nextTitle: cut > 0 ? next.slice(0, cut).replace(/\.$/, '') : next,
-    nextText: cut > 0 ? next.slice(cut + 2) : ''
+    programmes: programmes
   };
 }
 
@@ -149,7 +151,10 @@ function buildText_(d, r) {
   [['INSIGHT', r.insight], ['CONTEXT', r.context], ['FOCUS', r.focus]].forEach(function (s) {
     if (s[1]) lines.push('', s[0], s[1]);
   });
-  if (r.nextTitle) lines.push('', 'YOUR NEXT STEP', r.nextTitle + '.' + (r.nextText ? ' ' + r.nextText : ''));
+  if (r.programmes.length) {
+    lines.push('', 'YOUR NEXT STEPS');
+    r.programmes.forEach(function (p, i) { lines.push((i + 1) + '. ' + p.name + ' (' + p.duration + ')', '   ' + p.why); });
+  }
   lines.push('', 'Questions? Reply to this email or write to ' + CONFIG.CONTACT + '.', '', 'ALX Enterprise');
   return lines.join('\n');
 }
@@ -190,13 +195,17 @@ function buildHtml_(d, r) {
       '<ul style="margin:0;padding:0 0 0 20px;list-style:disc;color:' + C.blue + ';">' + areaItems + '</ul></td></tr>'
     : '';
 
-  const next = r.nextTitle
+  const progs = r.programmes.map(function (p, i) {
+    return '<div style="' + (i ? 'border-top:1px solid #1D3A8A;padding-top:16px;margin-top:16px;' : '') + '">' +
+      '<div style="font:700 17px/1.4 ' + FONT + ';color:#FFFFFF;">' + esc_(p.name) +
+      ' <span style="display:inline-block;background:' + C.sun + ';color:' + C.navy + ';font:700 11px/1 ' + FONT + ';padding:4px 9px;border-radius:999px;vertical-align:middle;">' + esc_(p.duration) + '</span></div>' +
+      '<div style="font:400 14px/1.6 ' + FONT + ';color:' + C.icy + ';padding-top:6px;">' + esc_(p.why) + '</div></div>';
+  }).join('');
+  const next = progs
     ? '<tr><td style="padding:0 32px 28px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
       '<td style="background:' + C.navy + ';border-radius:14px;padding:20px 22px;">' +
-      '<div style="font:700 12px/1.2 ' + FONT + ';letter-spacing:1.3px;text-transform:uppercase;color:' + C.sun + ';padding-bottom:8px;">Your next step</div>' +
-      '<div style="font:700 17px/1.4 ' + FONT + ';color:#FFFFFF;">' + esc_(r.nextTitle) + '</div>' +
-      (r.nextText ? '<div style="font:400 14px/1.6 ' + FONT + ';color:' + C.icy + ';padding-top:6px;">' + esc_(r.nextText) + '</div>' : '') +
-      '</td></tr></table></td></tr>'
+      '<div style="font:700 12px/1.2 ' + FONT + ';letter-spacing:1.3px;text-transform:uppercase;color:' + C.sun + ';padding-bottom:12px;">Your next steps</div>' +
+      progs + '</td></tr></table></td></tr>'
     : '';
 
   // If the report text could not be split into sections, show it whole rather than send an empty email.
@@ -251,7 +260,7 @@ function testEmail() {
     'By area: People & Skills 8/15; Operational Risks & Data Safety 6/15; Leadership & ROI 8/15; Local Fit & Resilience 7/15.',
     'Insight: Your team is experimenting with AI, but you are wasting money on mismatched tools and trial-and-error prompting that produces low-quality work.',
     "Focus: Standardise what's working, connect isolated pilots that already exist within the team, and start formalising data sharing and basic oversight before further scaling.",
-    'Your next step: AI Optimization Workshops. Hands-on masterclasses tailored specifically to your separate units (e.g., AI for HR Specialists, AI for Finance and Bookkeeping, AI for Modern Sales & Marketing Teams).'
+    'Your next steps: AI Productivity (1–2 days): Run it department by department to standardise what already works. Prompt mastery and reusable team playbooks replace trial and error. | AI Strategic Roadmap (1–2 days): Decide what to build, buy or pilot, so isolated experiments and mismatched tools become one prioritised backlog.'
   ].join('\n\n');
   sendReport_({ name: 'Test Person', email: to, score: 29, tier: 'Developing', report: report,
                 answers: 'B,A,C,B,B,B,A,C,B,A,A,C'.split(',') });
@@ -267,7 +276,7 @@ function testWebhook() {
       { key: 'q2', label: 'email', type: 'HIDDEN_FIELDS', value: Session.getActiveUser().getEmail() },
       { key: 'q3', label: 'score', type: 'HIDDEN_FIELDS', value: '41' },
       { key: 'q4', label: 'tier', type: 'HIDDEN_FIELDS', value: 'Mature' },
-      { key: 'q5', label: 'report', type: 'HIDDEN_FIELDS', value: 'Overall AI maturity: 41/60, Mature (The "Operational Bottleneck" phase).\n\nBy area: People & Skills 10/15; Operational Risks & Data Safety 12/15; Leadership & ROI 11/15; Local Fit & Resilience 8/15.\n\nInsight: Your digital foundation is solid, but you are vulnerable to talent flight (Japa).\n\nFocus: Set-up formal AI governance, enterprise platforms, cross-department AI teams.\n\nYour next step: AI Automation & Leadership Accelerator. Trains department heads in change management, no-code automation and tech resilience.' }
+      { key: 'q5', label: 'report', type: 'HIDDEN_FIELDS', value: 'Overall AI maturity: 41/60, Mature (The "Operational Bottleneck" phase).\n\nBy area: People & Skills 10/15; Operational Risks & Data Safety 12/15; Leadership & ROI 11/15; Local Fit & Resilience 8/15.\n\nInsight: Your digital foundation is solid, but you are vulnerable to talent flight (Japa).\n\nFocus: Set-up formal AI governance, enterprise platforms, cross-department AI teams.\n\nYour next steps: AI Strategic Roadmap (1–2 days): Sets formal AI governance, platform choices and an execution-ready backlog for scaling without adding headcount. | High-Performance Execution (1–2 days): Clarifies roles, decision rights and escalation paths, so cross-department AI work keeps moving when key people leave.' }
     ] }
   };
   const out = doPost({ parameter: { key: CONFIG.SECRET }, postData: { contents: JSON.stringify(SAMPLE) } });
