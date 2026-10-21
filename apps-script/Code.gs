@@ -97,7 +97,8 @@ function doGet(e) {
   t.boot = safeJson_(bootFor_(page));
   return t.evaluate()
     .setTitle(PAGES[page])
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 /** Only what each page needs. The reveal code never goes to the browser. */
